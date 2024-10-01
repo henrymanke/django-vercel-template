@@ -10,12 +10,15 @@ Dieses Projekt bietet ein Django-Template, das auf Vercel gehostet wird. Die Dat
 
 ## Schritte zur Einrichtung
 
-### 1. Repository klonen
+### 1. Repository klonen oder Template verwenden
 
 ```bash
-git clone https://github.com/dein-username/dein-repo.git
-cd dein-repo
+git clone https://github.com/henrymanke/django-vercel-template.git
+cd django-vercel-template
 ```
+
+> [!NOTE]  
+> Erstelle nun ein neues Projekt auf Vercel und nutze das Repo als Codebase.
 
 ### 2. Abhängigkeiten installieren
 
@@ -48,7 +51,9 @@ pip install -r requirements.txt
 
 ### 4. Superuser lokal erstellen
 
-Für die Superuser-Erstellung musst du lokal eine `.env`-Datei mit den Datenbank-Anmeldedaten anlegen. Die Datenbankvariablen findest du in Vercel unter **Storage** > [Deine Datenbank] > `.env.local` > **Copy Snippet**.
+Für die Superuser-Erstellung musst du **lokal** eine `.env`-Datei mit den Datenbank-Anmeldedaten anlegen. 
+
+Die Datenbankvariablen findest du in Vercel unter [Dein Projekt] > **Storage** > [Deine Datenbank] > `.env.local` > **Copy Snippet**
 
 Beispiel für die `.env`-Datei:
 
@@ -121,7 +126,7 @@ Um die Anwendung lokal zu testen, kannst du den lokalen Entwicklungsserver start
 python manage.py runserver
 ```
 
-Rufe dann die URL [http://localhost:8000](http://localhost:8000) in deinem Browser auf.
+Rufe dann die URL [http://127.0.0.1:8000](http://127.0.0.1:8000) in deinem Browser auf.
 
 ## Hinweise
 
