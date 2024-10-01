@@ -21,13 +21,14 @@ cd dein-repo
 
 Erstelle eine virtuelle Umgebung (venv):
 
+*macOS / Linux*
 ```bash
-# macOS / Linux
 python3 -m venv env
 source env/bin/activate
 pip install --upgrade pip
-
-# Windows
+```
+*Windows*
+```bash
 python -m venv env
 .\env\Scripts\activate
 pip install --upgrade pip
