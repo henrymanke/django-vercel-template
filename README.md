@@ -1,106 +1,128 @@
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fpython%2Fdjango&demo-title=Django%20%2B%20Vercel&demo-description=Use%20Django%204%20on%20Vercel%20with%20Serverless%20Functions%20using%20the%20Python%20Runtime.&demo-url=https%3A%2F%2Fdjango-template.vercel.app%2F&demo-image=https://assets.vercel.com/image/upload/v1669994241/random/django.png)
+# Django Vercel Template
 
-# Django + Vercel
+Dieses Projekt bietet ein Django-Template, das auf Vercel gehostet wird. Die Datenbankvariablen werden direkt von Vercel bereitgestellt, nachdem du eine Datenbank im Vercel-Projekt unter "Storage" angelegt und mit dem Projekt verbunden hast. Es ist lediglich notwendig, das Projekt mit der Datenbank zu verbinden. Alle benötigten Variablen sind bereits im Template enthalten.
 
-This example shows how to use Django 4 on Vercel with Serverless Functions using the [Python Runtime](https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/python).
+## Voraussetzungen
 
-## Demo
+- **Python 3.x** auf dem lokalen Rechner installiert
+- Ein **Vercel-Konto**
+- **Django** installiert
 
-https://django-template.vercel.app/
+## Schritte zur Einrichtung
 
-## How it Works
+### 1. Repository klonen
 
-Our Django application, `example` is configured as an installed application in `api/settings.py`:
-
-```python
-# api/settings.py
-INSTALLED_APPS = [
-    # ...
-    'example',
-]
+```bash
+git clone https://github.com/dein-username/dein-repo.git
+cd dein-repo
 ```
 
-We allow "\*.vercel.app" subdomains in `ALLOWED_HOSTS`, in addition to 127.0.0.1:
+### 2. Abhängigkeiten installieren
 
-```python
-# api/settings.py
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
+Erstelle eine virtuelle Umgebung (venv):
+
+```bash
+# macOS / Linux
+python3 -m venv env
+source env/bin/activate
+pip install --upgrade pip
+
+# Windows
+python -m venv env
+.\env\Scripts\activate
+pip install --upgrade pip
 ```
 
-The `wsgi` module must use a public variable named `app` to expose the WSGI application:
+Installiere die benötigten Python-Pakete:
 
-```python
-# api/wsgi.py
-app = get_wsgi_application()
+```bash
+pip install -r requirements.txt
 ```
 
-The corresponding `WSGI_APPLICATION` setting is configured to use the `app` variable from the `api.wsgi` module:
+### 3. Datenbank in Vercel anlegen
 
-```python
-# api/settings.py
-WSGI_APPLICATION = 'api.wsgi.app'
+1. Gehe zu deinem Vercel-Dashboard.
+2. Erstelle eine neue Datenbank unter **Storage**.
+3. Verbinde die Datenbank mit deinem Django-Projekt. Vercel stellt automatisch die benötigten Umgebungsvariablen für die Datenbankverbindung bereit.
+
+### 4. Superuser lokal erstellen
+
+Für die Superuser-Erstellung musst du lokal eine `.env`-Datei mit den Datenbank-Anmeldedaten anlegen. Die Datenbankvariablen findest du in Vercel unter **Storage** > [Deine Datenbank] > `.env.local` > **Copy Snippet**.
+
+Beispiel für die `.env`-Datei:
+
+```
+POSTGRES_URL="************"
+POSTGRES_PRISMA_URL="************"
+POSTGRES_URL_NO_SSL="************"
+POSTGRES_URL_NON_POOLING="************"
+POSTGRES_USER="************"
+POSTGRES_HOST="************"
+POSTGRES_PASSWORD="************"
+POSTGRES_DATABASE="************"
 ```
 
-There is a single view which renders the current time in `example/views.py`:
+Führe dann den folgenden Befehl aus, um einen Superuser zu erstellen:
 
-```python
-# example/views.py
-from datetime import datetime
-
-from django.http import HttpResponse
-
-
-def index(request):
-    now = datetime.now()
-    html = f'''
-    <html>
-        <body>
-            <h1>Hello from Vercel!</h1>
-            <p>The current time is { now }.</p>
-        </body>
-    </html>
-    '''
-    return HttpResponse(html)
+```bash
+python manage.py createsuperuser
 ```
 
-This view is exposed a URL through `example/urls.py`:
+### 5. Statische Dateien verwalten
+
+Die statischen Dateien werden aktuell nur über die URLs und über das Repository bereitgestellt. Stelle sicher, dass die statischen Dateien korrekt gesammelt werden, bevor du die Anwendung auf Vercel bereitstellst.
+
+#### Statische Dateien lokal sammeln:
+
+```bash
+python manage.py collectstatic
+```
+
+In den Django-Einstellungen (`settings.py`) sind folgende Konfigurationen für statische Dateien gesetzt:
 
 ```python
-# example/urls.py
-from django.urls import path
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-from example.views import index
+# URL where static files will be accessible
+STATIC_URL = '/static/'
 
+# Directory where static files will be collected
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+```
+
+#### URL-Konfiguration für statische Dateien:
+
+In der `urls.py`:
+
+```python
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', index),
-]
-```
-
-Finally, it's made accessible to the Django server inside `api/urls.py`:
-
-```python
-# api/urls.py
-from django.urls import path, include
-
-urlpatterns = [
-    ...
+    path('admin/', admin.site.urls),
     path('', include('example.urls')),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 ```
 
-This example uses the Web Server Gateway Interface (WSGI) with Django to enable handling requests on Vercel with Serverless Functions.
+### 6. Projekt auf Vercel deployen
 
-## Running Locally
+1. Verknüpfe dein GitHub-Repository mit Vercel.
+2. Vercel erkennt automatisch, dass es sich um ein Django-Projekt handelt und wird die erforderlichen Befehle zum Bauen und Starten der App ausführen.
+
+### 7. Lokale Entwicklung
+
+Um die Anwendung lokal zu testen, kannst du den lokalen Entwicklungsserver starten:
 
 ```bash
 python manage.py runserver
 ```
 
-Your Django application is now available at `http://localhost:8000`.
+Rufe dann die URL [http://localhost:8000](http://localhost:8000) in deinem Browser auf.
 
-## One-Click Deploy
+## Hinweise
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=vercel-examples):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fexamples%2Ftree%2Fmain%2Fpython%2Fdjango&demo-title=Django%20%2B%20Vercel&demo-description=Use%20Django%204%20on%20Vercel%20with%20Serverless%20Functions%20using%20the%20Python%20Runtime.&demo-url=https%3A%2F%2Fdjango-template.vercel.app%2F&demo-image=https://assets.vercel.com/image/upload/v1669994241/random/django.png)
+- **Superuser-Erstellung:** Da die Datenbank in der Produktion über Vercel läuft, sollte die Superuser-Erstellung lokal erfolgen.
+- **Statische Dateien:** Aktuell werden statische Dateien nur über URLs und das Repository bereitgestellt.
